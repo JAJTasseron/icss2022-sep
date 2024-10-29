@@ -41,20 +41,21 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: variableAsignment* stylerule* EOF;
+stylesheet: variableAssignment* stylerule* EOF;
 
-variableAsignment: CAPITAL_IDENT ASSIGNMENT_OPERATOR value SEMICOLON;
-stylerule: selector body;
+variableAssignment: variableReference ASSIGNMENT_OPERATOR value SEMICOLON;
+stylerule: selector OPEN_BRACE (declaration|ifClause|elseClause)+ CLOSE_BRACE;
 
 selector: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
-body: OPEN_BRACE (declaration|clause)+ CLOSE_BRACE;
 
-clause: ifClause|elseClause;
-ifClause: IF BOX_BRACKET_OPEN CAPITAL_IDENT BOX_BRACKET_CLOSE OPEN_BRACE (declaration|clause)+ CLOSE_BRACE;
-elseClause: ELSE OPEN_BRACE (declaration|clause)+ CLOSE_BRACE;
+ifClause: IF BOX_BRACKET_OPEN CAPITAL_IDENT BOX_BRACKET_CLOSE OPEN_BRACE (declaration|ifClause|elseClause)+ CLOSE_BRACE;
+elseClause: ELSE OPEN_BRACE (declaration|ifClause|elseClause)+ CLOSE_BRACE;
 
-declaration: LOWER_IDENT COLON (expression|value) SEMICOLON;
+declaration: property COLON (expression|variableReference|value) SEMICOLON;
 expression: expressionable operator (expressionable|expression);
-expressionable: CAPITAL_IDENT | PIXELSIZE | SCALAR;
+expressionable: variableReference | PIXELSIZE | PERCENTAGE | SCALAR;
 operator: (PLUS|MUL|MIN);
-value: TRUE | FALSE | PIXELSIZE | PERCENTAGE | SCALAR | COLOR | CAPITAL_IDENT;
+variableReference: CAPITAL_IDENT;
+property: LOWER_IDENT;
+value: TRUE | FALSE | PIXELSIZE | PERCENTAGE | SCALAR | COLOR;
+
