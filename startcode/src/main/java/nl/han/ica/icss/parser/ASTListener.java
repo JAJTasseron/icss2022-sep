@@ -87,16 +87,16 @@ public class ASTListener extends ICSSBaseListener {
 	}
 
 	// IfClause TODO: Fix deze zodat hij geen ASTNode die NULL is teruggeeft en maak daarna nog de expression
-//	@Override
-//	public void enterIfClause(ICSSParser.IfClauseContext ctx) {
-//		IfClause clause = new IfClause();
-//		currentContainer.push(clause);
-//	}
-//	@Override
-//	public void exitIfClause(ICSSParser.IfClauseContext ctx) {
-//		IfClause clause = (IfClause) currentContainer.pop();
-//		currentContainer.peek().addChild(clause);
-//	}
+	@Override
+	public void enterIfClause(ICSSParser.IfClauseContext ctx) {
+		IfClause clause = new IfClause();
+		currentContainer.push(clause);
+	}
+	@Override
+	public void exitIfClause(ICSSParser.IfClauseContext ctx) {
+		IfClause clause = (IfClause) currentContainer.pop();
+		currentContainer.peek().addChild(clause);
+	}
 
 	// ElseClause
 	@Override
@@ -194,6 +194,22 @@ public class ASTListener extends ICSSBaseListener {
 	public void exitVariableReference(ICSSParser.VariableReferenceContext ctx) {
 		VariableReference value = (VariableReference) currentContainer.pop();
 		currentContainer.peek().addChild(value);
+	}
+
+	//BooleanExpression
+	@Override
+	public void enterBooleanExpression(ICSSParser.BooleanExpressionContext ctx) {
+		if (ctx.getChild(0).getChildCount()==0){
+			BoolLiteral bool = new BoolLiteral(ctx.getText());
+			currentContainer.push(bool);
+		}
+	}
+	@Override
+	public void exitBooleanExpression(ICSSParser.BooleanExpressionContext ctx) {
+		if (ctx.getChild(0).getChildCount()==0){
+			BoolLiteral bool = (BoolLiteral) currentContainer.pop();
+			currentContainer.peek().addChild(bool);
+		}
 	}
 
 	// Expressionable

@@ -46,7 +46,7 @@ public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedLis
 
     @Override
     public T get(int pos) throws RuntimeException{
-        if(this.getSize()<=pos){
+        if(this.getSize()<pos){
             throw new RuntimeException("Position is out of bounds.");
         }
         HANLinkNode<T> currentNode = header;
