@@ -2,11 +2,11 @@ package nl.han.ica.datastructures;
 
 public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedList<T> {
 
-    HANLinkNode<T> header = new HANLinkNode<T>(null, null);
+    HANLinkNode<T> header = new HANLinkNode<>(null, null);
 
     @Override
     public void addFirst(T value) {
-        HANLinkNode<T> newNode = new HANLinkNode<T>(value, header.getNext());
+        HANLinkNode<T> newNode = new HANLinkNode<>(value, header.getNext());
         header.setNext(newNode);
     }
 
@@ -18,23 +18,23 @@ public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedLis
     @Override
     public void insert(int index, T value) throws RuntimeException {
         if(this.getSize()<index || index<0){
-            throw new RuntimeException("Index is out of bounds.");
+            throw new IndexOutOfBoundsException("Index is out of bounds.");
         }
         HANLinkNode<T> currentNode = header;
         for(int i = 0; i<index; i++){
             currentNode = currentNode.getNext();
         }
-        HANLinkNode<T> newNode = new HANLinkNode<T>(value, currentNode.getNext());
+        HANLinkNode<T> newNode = new HANLinkNode<>(value, currentNode.getNext());
         currentNode.setNext(newNode);
     }
 
     @Override
     public void delete(int pos) throws RuntimeException {
-//        if(this.getSize()-1>pos){ TODO: Check if this is still needed
-//            throw new RuntimeException("Position is out of bounds.");
-//        }
+        if(this.getSize()<pos || pos<0){
+            throw new IndexOutOfBoundsException("Position is out of bounds.");
+        }
         HANLinkNode<T> currentNode = header;
-        for(int i = 0; i<pos-1;i++){
+        for(int i = 0; i<pos;i++){
             currentNode = currentNode.getNext();
         }
         if(currentNode.getNext().getNext() == null){
@@ -47,7 +47,7 @@ public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedLis
     @Override
     public T get(int pos) throws RuntimeException{
         if(this.getSize()<pos){
-            throw new RuntimeException("Position is out of bounds.");
+            throw new IndexOutOfBoundsException("Position is out of bounds.");
         }
         HANLinkNode<T> currentNode = header;
         for(int i = -1; i<pos;i++){

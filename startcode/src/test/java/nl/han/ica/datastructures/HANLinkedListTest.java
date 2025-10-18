@@ -1,6 +1,9 @@
 package nl.han.ica.datastructures;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HANLinkedListTest {
@@ -81,5 +84,44 @@ class HANLinkedListTest {
         list.addFirst("A");
 
         assertThrows(RuntimeException.class, () -> list.insert(3, "TOO_FAR"));
+    }
+
+    // ------------------------------------------------------------
+    // Tests for delete
+    // ------------------------------------------------------------
+
+    @Test
+    void delete_AtNegativeIndex_ShouldThrowException() {
+        HANLinkedList<String> list = new HANLinkedList<>();
+
+        assertThrows(RuntimeException.class, () -> list.delete(-1));
+    }
+
+    @Test
+    void delete_AtOverflowIndex_ShouldThrowException() {
+        HANLinkedList<String> list = new HANLinkedList<>();
+        list.addFirst("A");
+        list.addFirst("B");
+
+        assertThrows(RuntimeException.class, () -> list.delete(2));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "2, C, B",
+            "1, C, A",
+            "0, B, A"
+    })
+    void delete_Node_ShouldLinkSurroundingNodes(int posToDelete, String expectedFirstNode, String expectedSecondNode) {
+        HANLinkedList<String> list = new HANLinkedList<>();
+        list.addFirst("A");
+        list.addFirst("B");
+        list.addFirst("C");
+
+        list.delete(posToDelete);
+
+        assertEquals(2, list.getSize());
+        assertEquals(expectedFirstNode, list.get(0));
+        assertEquals(expectedSecondNode, list.get(1));
     }
 }
