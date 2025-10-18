@@ -14,6 +14,9 @@ public class Generator {
 
 	// Onderdelen
 	private String generateStylesheet(Stylesheet root) {
+		if(root.getChildren().isEmpty()) { // TODO: zorg ervoor dat alle stylerules netjes worden gegenereerd, tijdelijke oplossing
+			return "";
+		}
 		return generateStylerule((Stylerule) root.getChildren().get(0));
 	}
 

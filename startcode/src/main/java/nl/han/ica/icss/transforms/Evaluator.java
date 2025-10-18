@@ -52,13 +52,15 @@ public class Evaluator implements Transform {
     }
 
     private void applyDeclaration(Declaration node) {
-        node.expression = evalExpression(node.expression);
+        if (node.expression != null && !node.expression.getChildren().isEmpty()) { // TODO: Zorg ervoor dat er netjes gekeken wordt of een onderdeel een expressie is
+            node.expression = evalExpression(node.expression);
+        }
     }
 
     private Expression evalExpression(Expression expression) {
         /* Schrijf een transformatie in Evaluator die alle Expression knopen in de AST
             door een Literal knoop met de berekende waarde vervangt.*/
-        int value = calculateEquation(expression, expression.getNodeLabel(), expression.getChildren().get(0),expression.getChildren().get(expression.getChildren().size()-1));
+        int value = calculateEquation(expression, expression.getNodeLabel(), expression.getChildren().get(0), expression.getChildren().get(expression.getChildren().size()-1));
         ExpressionType type = findExpressionTypeOfEquation(expression);
         if (type == PIXEL){
             return new PixelLiteral(value);
