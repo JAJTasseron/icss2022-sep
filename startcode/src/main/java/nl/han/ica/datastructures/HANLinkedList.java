@@ -30,7 +30,7 @@ public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedLis
 
     @Override
     public void delete(int pos) throws RuntimeException {
-        if(this.getSize()<pos || pos<0){
+        if(this.getSize()-1<pos || pos<0){
             throw new IndexOutOfBoundsException("Position is out of bounds.");
         }
         HANLinkNode<T> currentNode = header;
@@ -46,7 +46,7 @@ public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedLis
 
     @Override
     public T get(int pos) throws RuntimeException{
-        if(this.getSize()<pos){
+        if(this.getSize()-1<pos || pos<0){
             throw new IndexOutOfBoundsException("Position is out of bounds.");
         }
         HANLinkNode<T> currentNode = header;
