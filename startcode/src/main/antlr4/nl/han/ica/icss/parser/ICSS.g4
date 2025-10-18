@@ -2,7 +2,7 @@ grammar ICSS;
 
 //--- LEXER: ---
 
-// IF support:
+//IF support:
 IF: 'if';
 ELSE: 'else';
 BOX_BRACKET_OPEN: '[';
@@ -29,7 +29,7 @@ CAPITAL_IDENT: [A-Z] [A-Za-z0-9_]*;
 //All whitespace is skipped
 WS: [ \t\r\n]+ -> skip;
 
-//
+//Mathematical and structural symbols
 OPEN_BRACE: '{';
 CLOSE_BRACE: '}';
 SEMICOLON: ';';
