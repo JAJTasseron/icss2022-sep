@@ -58,7 +58,7 @@ public class Evaluator implements Transform {
     private Expression evalExpression(Expression expression) {
         /* Schrijf een transformatie in Evaluator die alle Expression knopen in de AST
             door een Literal knoop met de berekende waarde vervangt.*/
-        int value = calculateEquation(expression, expression.getNodeLabel(), expression.getChildren().getFirst(),expression.getChildren().getLast());
+        int value = calculateEquation(expression, expression.getNodeLabel(), expression.getChildren().get(0),expression.getChildren().get(expression.getChildren().size()-1));
         ExpressionType type = findExpressionTypeOfEquation(expression);
         if (type == PIXEL){
             return new PixelLiteral(value);
@@ -75,12 +75,12 @@ public class Evaluator implements Transform {
         int rightValue = 0;
 
         if(lhs.getChildren().size()>1){
-            leftValue = calculateEquation(node,lhs.getNodeLabel(),lhs.getChildren().getFirst(),lhs.getChildren().getLast());
+            leftValue = calculateEquation(node,lhs.getNodeLabel(),lhs.getChildren().get(0),lhs.getChildren().get(lhs.getChildren().size()-1));
         } else {
             leftValue = findValueOfLiteral(lhs);
         }
         if(rhs.getChildren().size()>1){
-            rightValue = calculateEquation(node,rhs.getNodeLabel(),rhs.getChildren().getFirst(),rhs.getChildren().getLast());
+            rightValue = calculateEquation(node,rhs.getNodeLabel(),rhs.getChildren().get(0),rhs.getChildren().get(rhs.getChildren().size()-1));
         } else {
             rightValue = findValueOfLiteral(rhs);
         }
@@ -98,13 +98,12 @@ public class Evaluator implements Transform {
 
     private ExpressionType findExpressionTypeOfEquation(ASTNode node){
         ExpressionType type = SCALAR;
-        if(node.getChildren().getFirst().getChildren().size()>1){
-            type = findExpressionTypeOfEquation(node.getChildren().getFirst());
+        if(node.getChildren().get(0).getChildren().size()>1){
+            type = findExpressionTypeOfEquation(node.getChildren().get(0));
         }
-        if(node.getChildren().getFirst().getChildren().size()>1){
-            if(findExpressionTypeOfEquation(node.getChildren().getLast()) != SCALAR){
-                type = findExpressionTypeOfEquation(node.getChildren().getLast());
-            }
+        if(node.getChildren().get(0).getChildren().size()>1
+                && findExpressionTypeOfEquation(node.getChildren().get(node.getChildren().size()-1)) != SCALAR){
+                type = findExpressionTypeOfEquation(node.getChildren().get(node.getChildren().size()-1));
         }
         for(ASTNode child : node.getChildren()){
             if(child instanceof PixelLiteral){

@@ -97,8 +97,8 @@ public class Checker {
         /* Controleer of de operanden van de operaties plus en min van gelijk type zijn. */
         if(node.expression.getChildren().size()>1){
             Expression currentExpression = node.expression;
-            ASTNode lhs = currentExpression.getChildren().getFirst();
-            ASTNode rhs = currentExpression.getChildren().getLast();
+            ASTNode lhs = currentExpression.getChildren().get(0);
+            ASTNode rhs = currentExpression.getChildren().get(currentExpression.getChildren().size()-1);
 
             /* Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer). */
             if (checkIfThereIsAColorLiteral(currentExpression)){
@@ -109,7 +109,7 @@ public class Checker {
 
         } else {
         /* Controleer of bij declaraties het type van de value klopt met de property.  */
-            if (node.property.name.equals("width") | node.property.name.equals("height")){
+            if (node.property.name.equals("width") || node.property.name.equals("height")){
                 if(node.expression instanceof VariableReference){
                     String variableName = ((VariableReference) node.expression).name;
                     if(variableTypes.get(findScopeOfVariable(node, variableName)).get(variableName) != PIXEL){
@@ -133,7 +133,6 @@ public class Checker {
     }
 
     public boolean checkIfThereIsAColorLiteral(Expression expression){
-        boolean colorFound = false;
         for(ASTNode astNode : expression.getChildren()){
             if(astNode instanceof ColorLiteral){
                 return true;
@@ -144,14 +143,14 @@ public class Checker {
 
     public void checkLeftVariableSameTypeAsRightVariable(ASTNode node, String nodeLabel, ASTNode lhs, ASTNode rhs){
         if(lhs.getChildren().size()>1){
-            checkLeftVariableSameTypeAsRightVariable(node,lhs.getNodeLabel(),lhs.getChildren().getFirst(),lhs.getChildren().getLast());
+            checkLeftVariableSameTypeAsRightVariable(node,lhs.getNodeLabel(),lhs.getChildren().get(0),lhs.getChildren().get(lhs.getChildren().size()-1));
         }
         if(rhs.getChildren().size()>1){
-            checkLeftVariableSameTypeAsRightVariable(node,rhs.getNodeLabel(),rhs.getChildren().getFirst(),rhs.getChildren().getLast());
+            checkLeftVariableSameTypeAsRightVariable(node,rhs.getNodeLabel(),rhs.getChildren().get(0),rhs.getChildren().get(rhs.getChildren().size()-1));
         }
         ExpressionType lhsType = findExpressionTypeOfNode(findCorrectEquationChild(lhs));
         ExpressionType rhsType = findExpressionTypeOfNode(findCorrectEquationChild(rhs));
-        if ((nodeLabel.equals("Add") | nodeLabel.equals("Subtract"))&&(lhsType != rhsType)) {
+        if ((nodeLabel.equals("Add") || nodeLabel.equals("Subtract"))&&(lhsType != rhsType)) {
             node.setError("Variable is not of the same type as other variables in this operation.");
         }
         if ((nodeLabel.equals("Multiply"))&&(lhsType != SCALAR && rhsType != SCALAR)){
@@ -161,10 +160,10 @@ public class Checker {
 
     private ASTNode findCorrectEquationChild(ASTNode node){
         while(node.getChildren().size()>1){
-            if (findExpressionTypeOfNode(node.getChildren().getFirst())==SCALAR){
-                node = node.getChildren().getLast();
+            if (findExpressionTypeOfNode(node.getChildren().get(0))==SCALAR){
+                node = node.getChildren().get(node.getChildren().size()-1);
             } else {
-                node = node.getChildren().getFirst();
+                node = node.getChildren().get(0);
             }
         }
         return node;

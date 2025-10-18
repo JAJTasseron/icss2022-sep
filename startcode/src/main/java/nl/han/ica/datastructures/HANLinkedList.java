@@ -17,11 +17,11 @@ public class HANLinkedList<T> implements nl.han.ica.datastructures.IHANLinkedLis
 
     @Override
     public void insert(int index, T value) throws RuntimeException {
-//        if(this.getSize()>index+1){ TODO: Check if this is still needed
-//            throw new RuntimeException("Index is out of bounds.");
-//        }
+        if(this.getSize()<index || index<0){
+            throw new RuntimeException("Index is out of bounds.");
+        }
         HANLinkNode<T> currentNode = header;
-        for(int i = 0; i<index-1;i++){
+        for(int i = 0; i<index; i++){
             currentNode = currentNode.getNext();
         }
         HANLinkNode<T> newNode = new HANLinkNode<T>(value, currentNode.getNext());
