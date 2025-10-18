@@ -38,8 +38,7 @@ public class ASTListener extends ICSSBaseListener {
 	}
 	@Override
 	public void exitStylesheet(ICSSParser.StylesheetContext ctx) {
-		Stylesheet sheet = (Stylesheet) currentContainer.pop();
-		ast.root = sheet;
+		ast.root = (Stylesheet) currentContainer.pop();
 	}
 
 	// VariableAssignment
@@ -86,7 +85,7 @@ public class ASTListener extends ICSSBaseListener {
 		currentContainer.peek().addChild(selector);
 	}
 
-	// IfClause TODO: Fix deze zodat hij geen ASTNode die NULL is teruggeeft en maak daarna nog de expression
+	// IfClause
 	@Override
 	public void enterIfClause(ICSSParser.IfClauseContext ctx) {
 		IfClause clause = new IfClause();
@@ -161,7 +160,7 @@ public class ASTListener extends ICSSBaseListener {
 	// Value
 	@Override
 	public void enterValue(ICSSParser.ValueContext ctx) {
-		if(ctx.getText().equals("TRUE")|ctx.getText().equals("FALSE")){
+		if(ctx.getText().equals("TRUE") || ctx.getText().equals("FALSE")){
 			Literal literal = new BoolLiteral(ctx.getText());
 			currentContainer.push(literal);
 		} else if (ctx.getText().startsWith("#")) {
