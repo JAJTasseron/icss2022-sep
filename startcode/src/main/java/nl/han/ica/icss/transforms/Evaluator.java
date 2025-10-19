@@ -98,6 +98,10 @@ public class Evaluator implements Transform {
     private boolean ifClauseBooleanIsTrue(IfClause node) {
         ASTNode condition = node.getConditionalExpression();
         if (condition instanceof BoolLiteral) return ((BoolLiteral) condition).value;
+        else if (condition instanceof VariableReference) {
+            Literal literal = variableValues.getFirst().get(((VariableReference) condition).name);
+            if (literal instanceof BoolLiteral) return ((BoolLiteral) literal).value;
+        }
         return false;
     }
 
