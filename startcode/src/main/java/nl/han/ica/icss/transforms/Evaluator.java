@@ -85,8 +85,13 @@ public class Evaluator implements Transform {
     }
 
     private void applyDeclaration(Declaration node) {
-        if (node.expression != null && !node.expression.getChildren().isEmpty()) { // TODO: Zorg ervoor dat er netjes gekeken wordt of een onderdeel een expressie is
-            node.expression = evalExpression(node.expression);
+        if (node.expression != null) {
+            if (node.expression instanceof VariableReference) {
+                node.expression = variableValues.getFirst().get(((VariableReference) node.expression).name);
+            }
+            if (!node.expression.getChildren().isEmpty()) {
+                node.expression = evalExpression(node.expression);
+            }
         }
     }
 
