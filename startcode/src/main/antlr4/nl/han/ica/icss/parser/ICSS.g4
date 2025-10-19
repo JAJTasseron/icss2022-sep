@@ -43,12 +43,12 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 stylesheet: variableAssignment* stylerule* EOF;
 
-stylerule: selector OPEN_BRACE (declaration|ifClause|elseClause|variableAssignment)+ CLOSE_BRACE;
+stylerule: selector OPEN_BRACE (declaration|ifClause|variableAssignment)+ CLOSE_BRACE;
 
 selector: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
 
-ifClause: IF BOX_BRACKET_OPEN booleanExpression BOX_BRACKET_CLOSE OPEN_BRACE (declaration|ifClause|elseClause|variableAssignment)+ CLOSE_BRACE;
-elseClause: ELSE OPEN_BRACE (declaration|ifClause|elseClause|variableAssignment)+ CLOSE_BRACE;
+ifClause: IF BOX_BRACKET_OPEN booleanExpression BOX_BRACKET_CLOSE OPEN_BRACE (declaration|ifClause|variableAssignment)+ CLOSE_BRACE elseClause*;
+elseClause: ELSE OPEN_BRACE (declaration|ifClause|variableAssignment)+ CLOSE_BRACE;
 
 variableAssignment: variableReference ASSIGNMENT_OPERATOR value SEMICOLON;
 declaration: property COLON (expression|variableReference|value) SEMICOLON;

@@ -3,11 +3,13 @@ package nl.han.ica.icss.transforms;
 import nl.han.ica.datastructures.HANLinkedList;
 import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
+import nl.han.ica.icss.ast.literals.BoolLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static nl.han.ica.icss.ast.types.ExpressionType.*;
@@ -27,11 +29,6 @@ public class Evaluator implements Transform {
     public void apply(AST ast) {
         variableValues = new HANLinkedList<>();
         applyStylesheet(ast.root);
-
-        /* TODO: Evalueer if/else expressies. Schrijf een transformatie in Evaluator die alle IfClauses uit de AST verwijdert.
-            Wanneer de conditie van de IfClause TRUE is wordt deze vervangen door de body van het if-statement.
-            Als de conditie FALSE is dan vervang je de IfClause door de body van de ElseClause.
-            Als er geen ElseClause is bij een negatieve conditie dan verwijder je de IfClause volledig uit de AST. */
     }
 
     // Onderdelen
@@ -44,11 +41,43 @@ public class Evaluator implements Transform {
     }
 
     private void applyStylerule(Stylerule node) {
-         for (ASTNode child : node.getChildren()) {
+        ArrayList<ASTNode> originalBody = node.body;
+        ArrayList<ASTNode> newBody = new ArrayList<>();
+
+        applyThroughIteratedStyleruleNodes(originalBody, newBody);
+
+        node.body = newBody;
+    }
+
+    private void applyThroughIteratedStyleruleNodes(ArrayList<ASTNode> originalBody, ArrayList<ASTNode> newBody) {
+        for (ASTNode child : originalBody) {
             if (child instanceof Declaration) {
                 applyDeclaration((Declaration) child);
+                newBody.add(child);
             }
-         }
+            if (child instanceof IfClause) {
+                applyIfClause((IfClause) child, newBody);
+            }
+        }
+    }
+
+    private void applyIfClause(IfClause ifClause, ArrayList<ASTNode> newBody) {
+        boolean conditionTrue = ifClauseBooleanIsTrue(ifClause);
+
+        ArrayList<ASTNode> chosenBody = new ArrayList<>();
+        if (conditionTrue) {
+            chosenBody.addAll(ifClause.body);
+        } else if (ifClause.elseClause != null) {
+            chosenBody.addAll(ifClause.elseClause.body);
+        }
+
+        applyThroughIteratedStyleruleNodes(chosenBody, newBody);
+    }
+
+    private boolean ifClauseBooleanIsTrue(IfClause node) {
+        ASTNode condition = node.getConditionalExpression();
+        if (condition instanceof BoolLiteral) return ((BoolLiteral) condition).value;
+        return false;
     }
 
     private void applyDeclaration(Declaration node) {
@@ -88,6 +117,8 @@ public class Evaluator implements Transform {
         }
 
         switch (nodeLabel) {
+            default:
+                return 0;
             case "Add":
                 return leftValue + rightValue;
             case "Subtract":
@@ -95,7 +126,6 @@ public class Evaluator implements Transform {
             case "Multiply":
                 return leftValue * rightValue;
         }
-        return 0;
     }
 
     private ExpressionType findExpressionTypeOfEquation(ASTNode node){
