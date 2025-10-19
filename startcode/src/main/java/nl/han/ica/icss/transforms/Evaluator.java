@@ -22,7 +22,6 @@ public class Evaluator implements Transform {
     private IHANLinkedList<HashMap<String, Literal>> variableValues;
 
     public Evaluator() {
-        //variableValues = new HANLinkedList<>(); TODO: Check of dit hier of in de apply moet (dit stond hier oorspronkelijk in)
     }
 
     @Override
@@ -33,11 +32,19 @@ public class Evaluator implements Transform {
 
     // Onderdelen
     private void applyStylesheet(Stylesheet node) {
+        variableValues.addFirst(new HashMap<>());
         for(ASTNode child : node.getChildren()) {
+            if(child instanceof VariableAssignment) {
+                applyVariableAssignment((VariableAssignment) child);
+            }
             if (child instanceof Stylerule) {
                 applyStylerule((Stylerule) child);
             }
         }
+    }
+
+    private void applyVariableAssignment(VariableAssignment node) {
+        variableValues.getFirst().put(node.name.name, (Literal) node.expression);
     }
 
     private void applyStylerule(Stylerule node) {
@@ -51,6 +58,9 @@ public class Evaluator implements Transform {
 
     private void applyThroughIteratedStyleruleNodes(ArrayList<ASTNode> originalBody, ArrayList<ASTNode> newBody) {
         for (ASTNode child : originalBody) {
+            if (child instanceof VariableAssignment) {
+                applyVariableAssignment((VariableAssignment) child);
+            }
             if (child instanceof Declaration) {
                 applyDeclaration((Declaration) child);
                 newBody.add(child);
@@ -74,16 +84,16 @@ public class Evaluator implements Transform {
         applyThroughIteratedStyleruleNodes(chosenBody, newBody);
     }
 
-    private boolean ifClauseBooleanIsTrue(IfClause node) {
-        ASTNode condition = node.getConditionalExpression();
-        if (condition instanceof BoolLiteral) return ((BoolLiteral) condition).value;
-        return false;
-    }
-
     private void applyDeclaration(Declaration node) {
         if (node.expression != null && !node.expression.getChildren().isEmpty()) { // TODO: Zorg ervoor dat er netjes gekeken wordt of een onderdeel een expressie is
             node.expression = evalExpression(node.expression);
         }
+    }
+
+    private boolean ifClauseBooleanIsTrue(IfClause node) {
+        ASTNode condition = node.getConditionalExpression();
+        if (condition instanceof BoolLiteral) return ((BoolLiteral) condition).value;
+        return false;
     }
 
     private Expression evalExpression(Expression expression) {
@@ -117,14 +127,14 @@ public class Evaluator implements Transform {
         }
 
         switch (nodeLabel) {
-            default:
-                return 0;
             case "Add":
                 return leftValue + rightValue;
             case "Subtract":
                 return leftValue - rightValue;
             case "Multiply":
                 return leftValue * rightValue;
+            default:
+                return 0;
         }
     }
 
@@ -176,11 +186,12 @@ public class Evaluator implements Transform {
 //
 //    private int findScopeOfVariable(ASTNode node, String variableName){
 //        for(int i = 0; i < variableValues.getSize(); i++){
-//            HashMap<String, ExpressionType> currentHashmap = variableValues.get(i);
+//            HashMap<String, Literal> currentHashmap = variableValues.get(i);
 //            if(currentHashmap.containsKey(variableName)){
 //                return i;
 //            }
 //        }
+//        return -1;
 //    }
 }
 
