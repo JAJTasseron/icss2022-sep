@@ -17,7 +17,6 @@ public class Checker {
 
     public void check(AST ast) {
         variableTypes = new HANLinkedList<>();
-        // MUST Controleer of variabelen enkel binnen hun scope gebruikt worden
         variableTypes.addFirst(new HashMap<>());
         checkStylesheet(ast.root);
     }
@@ -71,7 +70,7 @@ public class Checker {
     public void checkDeclaration(Declaration node){
         for (ASTNode child : node.getChildren()){
             if(child instanceof VariableReference
-                    && !variableReferenceIsSet((VariableReference) child)) { /* Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn. */
+                    && !variableReferenceIsSet((VariableReference) child)) {
                     return;
             }
         }
@@ -163,6 +162,7 @@ public class Checker {
         return null;
     }
 
+    /* MUST Controleer of variabelen enkel binnen hun scope gebruikt worden */
     private int findScopeOfVariable(ASTNode node, String variableName){
         for(int i = 0; i < variableTypes.getSize(); i++){
             HashMap<String, ExpressionType> currentHashmap = variableTypes.get(i);
@@ -172,6 +172,7 @@ public class Checker {
         return -1;
     }
 
+    /* Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn. */
     public boolean variableReferenceIsSet(VariableReference node){
         boolean variableIsSet = false;
 
