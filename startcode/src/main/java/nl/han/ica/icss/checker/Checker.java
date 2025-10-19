@@ -74,8 +74,7 @@ public class Checker {
                 checkVariableAssignment((VariableAssignment) child);
             }
         }
-        /* Controleer of de conditie bij een if-statement van het type boolean is
-            (zowel bij een variabele-referentie als een boolean literal) */
+        /* Controleer of de conditie bij een if-statement van het type boolean is (zowel bij een variabele-referentie als een boolean literal) */
         if (node.conditionalExpression instanceof VariableReference) {
             String variableName = ((VariableReference) node.conditionalExpression).name;
             if (variableTypes.get(findScopeOfVariable(node, variableName)).get(variableName) != BOOL){
@@ -89,45 +88,50 @@ public class Checker {
 
     public void checkDeclaration(Declaration node){
         for (ASTNode child : node.getChildren()){
-            if(child instanceof VariableReference) {
-                checkVariableReference((VariableReference) child);
+            if(child instanceof VariableReference
+                    && !variableReferenceIsSet((VariableReference) child)) { /* Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn. */
+                    break;
             }
         }
 
-        /* Controleer of de operanden van de operaties plus en min van gelijk type zijn. */
         if(node.expression.getChildren().size()>1){
-            Expression currentExpression = node.expression;
-            ASTNode lhs = currentExpression.getChildren().get(0);
-            ASTNode rhs = currentExpression.getChildren().get(currentExpression.getChildren().size()-1);
-
-            /* Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer). */
-            if (checkIfThereIsAColorLiteral(currentExpression)){
-                node.setError("Can't have a color in an equation.");
-            }
-
-            checkLeftVariableSameTypeAsRightVariable(node, currentExpression.getNodeLabel(), lhs, rhs);
-
+            checkOperationIntegrity(node); /* Controleer of de operanden van de operaties plus en min van gelijk type zijn. */
         } else {
-        /* Controleer of bij declaraties het type van de value klopt met de property.  */
-            if (node.property.name.equals("width") || node.property.name.equals("height")){
-                if(node.expression instanceof VariableReference){
-                    String variableName = ((VariableReference) node.expression).name;
-                    if(variableTypes.get(findScopeOfVariable(node, variableName)).get(variableName) != PIXEL){
-                        node.setError("Variable is not a pixel size where it is expected.");
-                    }
-                } else if (!(node.expression instanceof PixelLiteral)){
-                    node.setError("Property should be a pixel size.");
+            checkDeclarationIntegrity(node); /* Controleer of bij declaraties het type van de value klopt met de property.  */
+        }
+    }
+
+    private void checkOperationIntegrity(Declaration node){
+        Expression currentExpression = node.expression;
+        ASTNode lhs = currentExpression.getChildren().get(0);
+        ASTNode rhs = currentExpression.getChildren().get(currentExpression.getChildren().size()-1);
+
+        if (checkIfThereIsAColorLiteral(currentExpression)){ /* Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer). */
+            node.setError("Can't have a color in an equation.");
+        }
+
+        checkLeftVariableSameTypeAsRightVariable(node, currentExpression.getNodeLabel(), lhs, rhs);
+    }
+
+    private void checkDeclarationIntegrity(Declaration node){
+        if (node.property.name.equals("width") || node.property.name.equals("height")){
+            if(node.expression instanceof VariableReference){
+                String variableName = ((VariableReference) node.expression).name;
+                if(variableTypes.get(findScopeOfVariable(node, variableName)).get(variableName) != PIXEL){
+                    node.setError("Variable is not a pixel size where it is expected.");
                 }
+            } else if (!(node.expression instanceof PixelLiteral)){
+                node.setError("Property should be a pixel size.");
             }
-            if (node.property.name.contains("color")){
-                if(node.expression instanceof VariableReference){
-                    String variableName = ((VariableReference) node.expression).name;
-                    if(variableTypes.get(findScopeOfVariable(node,variableName)).get(variableName) != COLOR){
-                        node.setError("Variable is not a color where it is expected.");
-                    }
-                } else if (!(node.expression instanceof ColorLiteral)){
-                    node.setError("Property should be a color.");
+        }
+        if (node.property.name.contains("color")){
+            if(node.expression instanceof VariableReference){
+                String variableName = ((VariableReference) node.expression).name;
+                if(variableTypes.get(findScopeOfVariable(node,variableName)).get(variableName) != COLOR){
+                    node.setError("Variable is not a color where it is expected.");
                 }
+            } else if (!(node.expression instanceof ColorLiteral)){
+                node.setError("Property should be a color.");
             }
         }
     }
@@ -196,8 +200,7 @@ public class Checker {
         return -1;
     }
 
-    public void checkVariableReference(VariableReference node){
-        /* Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn. */
+    public boolean variableReferenceIsSet(VariableReference node){
         boolean variableIsSet = false;
 
         for(int i = 0; i < variableTypes.getSize(); i++){
@@ -213,5 +216,6 @@ public class Checker {
         if (!variableIsSet){
             node.setError("Variable is not declared.");
         }
+        return variableIsSet;
     }
 }
