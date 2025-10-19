@@ -167,6 +167,11 @@ public class Evaluator implements Transform {
     }
 
     private int findValueOfLiteral(ASTNode node){
+        if (node instanceof VariableReference){
+            String variableName = ((VariableReference) node).name;
+            return findValueOfLiteral(variableValues.getFirst().get(variableName));
+        }
+
         if (node instanceof PixelLiteral){
             return ((PixelLiteral) node).value;
         } else if (node instanceof PercentageLiteral) {
