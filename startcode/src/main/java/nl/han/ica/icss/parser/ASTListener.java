@@ -17,10 +17,10 @@ import nl.han.ica.icss.ast.selectors.TagSelector;
 public class ASTListener extends ICSSBaseListener {
 
 	//Accumulator attributes:
-	private AST ast;
+	private final AST ast;
 
 	//Use this to keep track of the parent nodes when recursively traversing the ast
-	private IHANStack<ASTNode> currentContainer;
+	private final IHANStack<ASTNode> currentContainer;
 
 	public ASTListener() {
 		ast = new AST();
@@ -215,15 +215,14 @@ public class ASTListener extends ICSSBaseListener {
 	@Override
 	public void enterExpressionable(ICSSParser.ExpressionableContext ctx) {
 		if (ctx.getChild(0).getChildCount()==0){
-			if (ctx.getText().endsWith("%")) {
-				Literal literal = new PercentageLiteral(ctx.getText());
-				currentContainer.push(literal);
+			if (ctx.getText().startsWith("#")) {
+				currentContainer.push(new ColorLiteral(ctx.getText()));
+			} else if (ctx.getText().endsWith("%")) {
+				currentContainer.push(new PercentageLiteral(ctx.getText()));
 			} else if (ctx.getText().endsWith("px")) {
-				Literal literal = new PixelLiteral(ctx.getText());
-				currentContainer.push(literal);
+				currentContainer.push(new PixelLiteral(ctx.getText()));
 			} else {
-				Literal literal = new ScalarLiteral(ctx.getText());
-				currentContainer.push(literal);
+				currentContainer.push(new ScalarLiteral(ctx.getText()));
 			}
 		}
 	}
