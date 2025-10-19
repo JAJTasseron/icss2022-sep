@@ -17,8 +17,6 @@ import static nl.han.ica.icss.ast.types.ExpressionType.SCALAR;
 
 public class Evaluator implements Transform {
 
-    // TODO: Vul variabelen in en berekeningen uitwerken
-
     private IHANLinkedList<HashMap<String, Literal>> variableValues;
 
     public Evaluator() {
@@ -181,32 +179,6 @@ public class Evaluator implements Transform {
         }
         return 0;
     }
-
-//    private ExpressionType findExpressionTypeOfNode(ASTNode node){
-//        if(node instanceof VariableReference){
-//            String variableName = ((VariableReference) node).name;
-//            int scopeOfVariable = findScopeOfVariable(node, variableName);
-//            if (scopeOfVariable == -1){ return null; }
-//            return variableValues.get(scopeOfVariable).get(variableName);
-//        } else if (node instanceof PixelLiteral){
-//            return PIXEL;
-//        } else if (node instanceof PercentageLiteral){
-//            return PERCENTAGE;
-//        } else if (node instanceof ScalarLiteral){
-//            return SCALAR;
-//        }
-//        return null;
-//    }
-//
-//    private int findScopeOfVariable(ASTNode node, String variableName){
-//        for(int i = 0; i < variableValues.getSize(); i++){
-//            HashMap<String, Literal> currentHashmap = variableValues.get(i);
-//            if(currentHashmap.containsKey(variableName)){
-//                return i;
-//            }
-//        }
-//        return -1;
-//    }
 }
 
 
