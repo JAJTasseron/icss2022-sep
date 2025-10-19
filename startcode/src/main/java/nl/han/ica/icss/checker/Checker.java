@@ -24,43 +24,25 @@ public class Checker {
 
     private void checkStylesheet(Stylesheet node) {
         for(ASTNode child : node.getChildren()){
-            if(child instanceof VariableAssignment) {
-                checkVariableAssignment((VariableAssignment) child);
-            }
-            if(child instanceof Stylerule) {
-                checkStylerule((Stylerule) child);
-            }
+            if(child instanceof VariableAssignment) checkVariableAssignment((VariableAssignment) child);
+            if(child instanceof Stylerule)  checkStylerule((Stylerule) child);
         }
     }
 
     private void checkVariableAssignment(VariableAssignment node) {
-        if(node.expression instanceof BoolLiteral){
-            variableTypes.get(0).put(node.name.name, BOOL);
-        }
-        if(node.expression instanceof ColorLiteral){
-            variableTypes.get(0).put(node.name.name, COLOR);
-        }
-        if(node.expression instanceof PercentageLiteral){
-            variableTypes.get(0).put(node.name.name, PERCENTAGE);
-        }
-        if(node.expression instanceof PixelLiteral){
-            variableTypes.get(0).put(node.name.name, PIXEL);
-        }
-        if(node.expression instanceof ScalarLiteral){
-            variableTypes.get(0).put(node.name.name, SCALAR);
-        }
+        if(node.expression instanceof BoolLiteral) variableTypes.get(0).put(node.name.name, BOOL);
+        if(node.expression instanceof ColorLiteral) variableTypes.get(0).put(node.name.name, COLOR);
+        if(node.expression instanceof PercentageLiteral) variableTypes.get(0).put(node.name.name, PERCENTAGE);
+        if(node.expression instanceof PixelLiteral) variableTypes.get(0).put(node.name.name, PIXEL);
+        if(node.expression instanceof ScalarLiteral) variableTypes.get(0).put(node.name.name, SCALAR);
     }
 
     private void checkStylerule(Stylerule node) {
         variableTypes.addFirst(new HashMap<>());
         for (ASTNode child : node.getChildren()){
-            if(child instanceof Declaration) {
-                checkDeclaration((Declaration) child);
-            } else if (child instanceof IfClause){
-                checkIfClause((IfClause) child);
-            } else if (child instanceof VariableAssignment){
-                checkVariableAssignment((VariableAssignment) child);
-            }
+            if (child instanceof Declaration) checkDeclaration((Declaration) child);
+            else if (child instanceof IfClause) checkIfClause((IfClause) child);
+            else if (child instanceof VariableAssignment) checkVariableAssignment((VariableAssignment) child);
         }
         variableTypes.delete(0);
     }
@@ -90,57 +72,52 @@ public class Checker {
         for (ASTNode child : node.getChildren()){
             if(child instanceof VariableReference
                     && !variableReferenceIsSet((VariableReference) child)) { /* Controleer of er geen variabelen worden gebruikt die niet gedefinieerd zijn. */
-                    break;
+                    return;
             }
         }
 
         if(node.expression.getChildren().size()>1){
-            checkOperationIntegrity(node); /* Controleer of de operanden van de operaties plus en min van gelijk type zijn. */
+            checkOperationIntegrity(node);
         } else {
-            checkDeclarationIntegrity(node); /* Controleer of bij declaraties het type van de value klopt met de property.  */
+            checkDeclarationIntegrity(node);
         }
     }
 
+    /* Controleer of de operanden van de operaties plus en min van gelijk type zijn. */
     private void checkOperationIntegrity(Declaration node){
         Expression currentExpression = node.expression;
         ASTNode lhs = currentExpression.getChildren().get(0);
         ASTNode rhs = currentExpression.getChildren().get(currentExpression.getChildren().size()-1);
 
-        if (checkIfThereIsAColorLiteral(currentExpression)){ /* Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer). */
-            node.setError("Can't have a color in an equation.");
-        }
+        if (checkIfThereIsAColorLiteral(currentExpression)) node.setError("Can't have a color in an equation.");
 
         checkLeftVariableSameTypeAsRightVariable(node, currentExpression.getNodeLabel(), lhs, rhs);
     }
 
-    private void checkDeclarationIntegrity(Declaration node){
-        if (node.property.name.equals("width") || node.property.name.equals("height")){
-            if(node.expression instanceof VariableReference){
-                String variableName = ((VariableReference) node.expression).name;
-                if(variableTypes.get(findScopeOfVariable(node, variableName)).get(variableName) != PIXEL){
-                    node.setError("Variable is not a pixel size where it is expected.");
-                }
-            } else if (!(node.expression instanceof PixelLiteral)){
-                node.setError("Property should be a pixel size.");
-            }
-        }
-        if (node.property.name.contains("color")){
-            if(node.expression instanceof VariableReference){
-                String variableName = ((VariableReference) node.expression).name;
-                if(variableTypes.get(findScopeOfVariable(node,variableName)).get(variableName) != COLOR){
-                    node.setError("Variable is not a color where it is expected.");
-                }
-            } else if (!(node.expression instanceof ColorLiteral)){
-                node.setError("Property should be a color.");
-            }
-        }
+    /* Controleer of bij declaraties het type van de value klopt met de property.  */
+    private void checkDeclarationIntegrity(Declaration node) {
+        String property = node.property.name;
+        if (property.equals("width") || property.equals("height")) checkExpectedType(node, PIXEL, PixelLiteral.class, "pixel size");
+        else if (property.contains("color")) checkExpectedType(node, COLOR, ColorLiteral.class, "color");
     }
 
+    private void checkExpectedType(Declaration node, ExpressionType expectedType,
+                                   Class<?> expectedLiteralClass, String typeName) {
+        if (node.expression instanceof VariableReference) {
+            String variableName = ((VariableReference) node.expression).name;
+            int scope = findScopeOfVariable(node, variableName);
+            if (scope == -1) return;
+
+            ExpressionType actualType = variableTypes.get(scope).get(variableName);
+            if (actualType != expectedType) node.setError("Variable is not a " + typeName + " where it is expected.");
+        }
+        else if (!expectedLiteralClass.isInstance(node.expression)) node.setError("Property should be a " + typeName + ".");
+    }
+
+    /* Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer). */
     public boolean checkIfThereIsAColorLiteral(Expression expression){
         for(ASTNode astNode : expression.getChildren()){
-            if(astNode instanceof ColorLiteral){
-                return true;
-            }
+            if (astNode instanceof ColorLiteral) return true;
         }
         return false;
     }
@@ -179,22 +156,17 @@ public class Checker {
             int scopeOfVariable = findScopeOfVariable(node, variableName);
             if (scopeOfVariable == -1){ return null; }
             return variableTypes.get(scopeOfVariable).get(variableName);
-        } else if (node instanceof PixelLiteral){
-            return PIXEL;
-        } else if (node instanceof PercentageLiteral){
-            return PERCENTAGE;
-        } else if (node instanceof ScalarLiteral){
-            return SCALAR;
         }
+        else if (node instanceof PixelLiteral) return PIXEL;
+        else if (node instanceof PercentageLiteral) return PERCENTAGE;
+        else if (node instanceof ScalarLiteral) return SCALAR;
         return null;
     }
 
     private int findScopeOfVariable(ASTNode node, String variableName){
         for(int i = 0; i < variableTypes.getSize(); i++){
             HashMap<String, ExpressionType> currentHashmap = variableTypes.get(i);
-            if(currentHashmap.containsKey(variableName)){
-                return i;
-            }
+            if(currentHashmap.containsKey(variableName)) return i;
         }
         node.setError("Can not use a variable outside of the current scope.");
         return -1;
@@ -213,9 +185,7 @@ public class Checker {
             }
         }
 
-        if (!variableIsSet){
-            node.setError("Variable is not declared.");
-        }
+        if (!variableIsSet) node.setError("Variable is not declared.");
         return variableIsSet;
     }
 }
