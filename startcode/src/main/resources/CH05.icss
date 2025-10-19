@@ -1,0 +1,23 @@
+UseColor := TRUE;
+FakeBool := FALSE;
+
+afails {
+    if[10px] {
+        color: #000000;
+    }
+}
+bfails {
+    if[FakeBool] {
+        color: #000000;
+    }
+}
+c {
+    if[TRUE] {
+        color: #000000;
+    }
+}
+d {
+    if[UseColor] {
+        color: #000000;
+    }
+}

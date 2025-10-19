@@ -1,0 +1,5 @@
+ColorVar := #ff0000;
+
+afails {
+	width: ColorVar + ColorVar;
+}

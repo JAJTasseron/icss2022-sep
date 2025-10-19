@@ -1,0 +1,17 @@
+ColorOne := #00ff00;
+
+afails {
+    if[TRUE] {
+        LocalColorOne := #ff0000;
+    }
+    color: LocalColorOne;
+}
+b {
+    if[TRUE] {
+        LocalColorTwo := #ff0000;
+        color: LocalColorTwo;
+    }
+}
+c {
+    color: ColorOne;
+}

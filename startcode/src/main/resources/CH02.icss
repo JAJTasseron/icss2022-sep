@@ -1,0 +1,12 @@
+afails {
+    width: 10px + 20%;
+}
+b {
+    width: 2 * 10px;
+}
+cfails {
+    width: 10px * 2px;
+}
+d {
+    width: 2 * 3;
+}

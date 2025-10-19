@@ -1,0 +1,8 @@
+LinkColor := #ff0000;
+
+a {
+    color: LinkColor;
+}
+bfails {
+    color: UndefinedColor;
+}
