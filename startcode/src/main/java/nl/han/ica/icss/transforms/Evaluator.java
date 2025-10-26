@@ -19,9 +19,6 @@ public class Evaluator implements Transform {
 
     private IHANLinkedList<HashMap<String, Literal>> variableValues;
 
-    public Evaluator() {
-    }
-
     @Override
     public void apply(AST ast) {
         variableValues = new HANLinkedList<>();
@@ -46,6 +43,7 @@ public class Evaluator implements Transform {
     }
 
     private void applyStylerule(Stylerule node) {
+//        variableValues.addFirst(new HashMap<>());
         ArrayList<ASTNode> originalBody = node.body;
         ArrayList<ASTNode> newBody = new ArrayList<>();
 

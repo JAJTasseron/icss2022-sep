@@ -88,7 +88,9 @@ public class Checker {
         ASTNode lhs = currentExpression.getChildren().get(0);
         ASTNode rhs = currentExpression.getChildren().get(currentExpression.getChildren().size()-1);
 
-        if (checkIfThereIsAColorLiteral(currentExpression)) node.setError("Can't have a color in an equation.");
+        if (usesColorLiteralInExpression(currentExpression)) {
+            node.setError("Can't have a color in an equation.");
+        }
 
         checkLeftVariableSameTypeAsRightVariable(node, currentExpression.getNodeLabel(), lhs, rhs);
     }
@@ -114,9 +116,9 @@ public class Checker {
     }
 
     /* Controleer of er geen kleuren worden gebruikt in operaties (plus, min en keer). */
-    public boolean checkIfThereIsAColorLiteral(Expression expression){
+    public boolean usesColorLiteralInExpression(Expression expression){
         for(ASTNode astNode : expression.getChildren()){
-            if (astNode instanceof ColorLiteral) return true;
+            if (findExpressionTypeOfNode(astNode) == COLOR) return true;
         }
         return false;
     }
@@ -168,7 +170,7 @@ public class Checker {
             HashMap<String, ExpressionType> currentHashmap = variableTypes.get(i);
             if(currentHashmap.containsKey(variableName)) return i;
         }
-        node.setError("Can not use a variable outside of the current scope.");
+        node.setError("Can not use a variable outside of the current scope."); // Dit zou niet moeten gebeuren aangezien de variabele verwijderd wordt als die buiten de scope valt
         return -1;
     }
 
@@ -186,7 +188,7 @@ public class Checker {
             }
         }
 
-        if (!variableIsSet) node.setError("Variable is not declared.");
+        if (!variableIsSet) node.setError("Variable is not declared or out of scope.");
         return variableIsSet;
     }
 }
