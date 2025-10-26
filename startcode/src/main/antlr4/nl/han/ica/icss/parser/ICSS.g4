@@ -57,7 +57,6 @@ expression: expressionable
             |expression (PLUS|MIN) expression;
 expressionable: variableReference | PIXELSIZE | PERCENTAGE | SCALAR;
 booleanExpression: variableReference|TRUE|FALSE;
-//operator: (PLUS|MUL|MIN);
 
 variableReference: CAPITAL_IDENT;
 property: LOWER_IDENT;
