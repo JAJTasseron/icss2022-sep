@@ -43,16 +43,18 @@ public class Evaluator implements Transform {
     }
 
     private void applyStylerule(Stylerule node) {
-//        variableValues.addFirst(new HashMap<>());
+        variableValues.addFirst(new HashMap<>());
         ArrayList<ASTNode> originalBody = node.body;
         ArrayList<ASTNode> newBody = new ArrayList<>();
 
         applyThroughIteratedStyleruleNodes(originalBody, newBody);
 
         node.body = newBody;
+        variableValues.delete(0);
     }
 
     private void applyThroughIteratedStyleruleNodes(ArrayList<ASTNode> originalBody, ArrayList<ASTNode> newBody) {
+        variableValues.addFirst(new HashMap<>());
         for (ASTNode child : originalBody) {
             if (child instanceof VariableAssignment) {
                 applyVariableAssignment((VariableAssignment) child);
@@ -65,6 +67,7 @@ public class Evaluator implements Transform {
                 applyIfClause((IfClause) child, newBody);
             }
         }
+        variableValues.delete(0);
     }
 
     private void applyIfClause(IfClause ifClause, ArrayList<ASTNode> newBody) {
@@ -85,7 +88,7 @@ public class Evaluator implements Transform {
             if (node.expression instanceof VariableReference) {
                 node.expression = variableValues.getFirst().get(((VariableReference) node.expression).name);
             }
-            if (!node.expression.getChildren().isEmpty()) {
+            else if (!node.expression.getChildren().isEmpty()) {
                 node.expression = evalExpression(node.expression);
             }
         }
@@ -117,8 +120,8 @@ public class Evaluator implements Transform {
     }
 
     public int calculateEquation(ASTNode node, String nodeLabel, ASTNode lhs, ASTNode rhs){
-        int leftValue = 0;
-        int rightValue = 0;
+        int leftValue;
+        int rightValue;
 
         if(lhs.getChildren().size()>1){
             leftValue = calculateEquation(node,lhs.getNodeLabel(),lhs.getChildren().get(0),lhs.getChildren().get(lhs.getChildren().size()-1));
